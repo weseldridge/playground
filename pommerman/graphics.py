@@ -265,12 +265,7 @@ class PommeViewer(object):
     def render_background(self):
         image_pattern = pyglet.image.SolidColorImagePattern(color=constants.BACKGROUND_COLOR)
         image = image_pattern.create_image(self._width, self._height)
-<<<<<<< HEAD
-        return pyglet.sprite.Sprite(image, 0, 0, batch=self._batch)
-        # image.blit(0, 0)
-=======
         return pyglet.sprite.Sprite(image, 0, 0, batch=self._batch, group=layer_background)
->>>>>>> 004ee88... fixed returned value. cleaned up old comments and unused code.
 
     def render_text(self):
         text = []
@@ -278,8 +273,10 @@ class PommeViewer(object):
         title_label = pyglet.text.Label('Pommerman', 
                     font_name='Cousine-Regular', 
                     font_size=36,
-                    x=constants.BORDER_SIZE, y=board_top,
-                    batch=self._batch)
+                    x=constants.BORDER_SIZE, 
+                    y=board_top,
+                    batch=self._batch,
+                    group=layer_top)
         title_label.color = constants.TILE_COLOR
         text.append(title_label)
 
@@ -293,15 +290,10 @@ class PommeViewer(object):
         time_label = pyglet.text.Label(info_text, 
                     font_name='Arial', 
                     font_size=10,
-<<<<<<< HEAD
-                    x=constants.BORDER_SIZE, y=5,
-                    batch=self._batch)
-=======
                     x=constants.BORDER_SIZE, 
                     y=5,
                     batch=self._batch,
                     group=layer_top)
->>>>>>> 5e00b3c... moved to batch
         time_label.color = constants.TEXT_COLOR
         text.append(time_label)
         return text
@@ -321,20 +313,10 @@ class PommeViewer(object):
             agent_image = self._resource_manager.agent_image(agent.agent_id)
             agent_image.width = image_size
             agent_image.height = image_size
-<<<<<<< HEAD
-            sprites.append(pyglet.sprite.Sprite(agent_image, x, y, batch=self._batch))
-            
-            # sprite.blit(x, y, width=image_size, height=image_size)
-
-            if agent.is_alive is False:
-                sprites.append(pyglet.sprite.Sprite(dead, x, y, batch=self._batch))
-                # dead.blit(x, y, width=image_size, height=image_size)
-=======
             sprites.append(pyglet.sprite.Sprite(agent_image, x, y, batch=self._batch, group=layer_foreground))
 
             if agent.is_alive is False:
                 sprites.append(pyglet.sprite.Sprite(dead, x, y, batch=self._batch, group=layer_top))
->>>>>>> 004ee88... fixed returned value. cleaned up old comments and unused code.
 
         return sprites
 

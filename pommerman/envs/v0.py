@@ -19,7 +19,6 @@ from .. import forward_model
 from .. import utility
 
 
-
 class Pomme(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array', 'rgb_pixel'],
@@ -204,7 +203,6 @@ class Pomme(gym.Env):
             frames.append(my_frame)
 
         return frames
-
 
     def render(self, mode='human', close=False, record_pngs_dir=None, record_json_dir=None):
         if close:
