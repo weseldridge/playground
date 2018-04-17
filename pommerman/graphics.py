@@ -1,4 +1,5 @@
 from scipy.misc import imresize as resize
+from datetime import datetime
 from gym.utils import reraise
 from random import randint
 from time import strftime
@@ -33,7 +34,54 @@ layer_background = pyglet.graphics.OrderedGroup(0)
 layer_foreground = pyglet.graphics.OrderedGroup(1)
 layer_top = pyglet.graphics.OrderedGroup(2)
 
-class PixelViewer(object):
+class Viewer(object):
+    def __init__(self):
+        self.window = None
+        self.display = None
+        self._agents = []
+        self._agent_count = 0
+        self._board_state = None
+        self._batch = None
+        self.window = None
+        self._step = 0
+        self._agent_view_size = 4
+        self._is_partially_observable = False
+        self.isopen = False
+
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    def set_board(self, state):
+        self._board_state = state
+    
+    def set_agents(self, agents):
+        self._agents = agents
+        self._agent_count = len(agents)
+
+    def set_partially_observable(self, is_partially_observable):
+        self._is_partially_observable = is_partially_observable
+
+    def set_step(self, step):
+        self._step = step
+
+    def set_agent_view_size(self, view_size):
+        self._agent_view_size = view_size
+
+    def close(self):
+        self.window.close()
+        self.isopen = False
+
+    def window_closed_by_user(self):
+        self.isopen = False
+
+    def save(self, path):
+        now = datetime.now()
+        filename = now.strftime('%m_%d_%y-%-H_%M_%S_') + str(self._step) + '.png'
+        path = os.path.join(path, filename)
+        pyglet.image.get_buffer_manager().get_color_buffer().save(path)
+
+
+class PixelViewer(Viewer):
     def __init__(self, 
                 display=None, 
                 board_size=13, 
@@ -41,19 +89,12 @@ class PixelViewer(object):
                 partially_observable=False,
                 game_type=None
         ):
+        super().__init__()
         self.display = rendering.get_display(display)
         self._board_size = board_size
-        self._board_state = None
         self._agent_count = len(agents)
         self._agents = agents
         self._is_partially_observable = partially_observable
-        self.window = None
-
-    def set_board(self, state):
-        self._board_state = state
-
-    def set_agents(self, agents):
-        self._agents = agents
 
     def render(self):
         frames = self.build_frame()
@@ -100,8 +141,6 @@ class PixelViewer(object):
 
         return img
 
-    def save(self, path):
-        pyglet.image.get_buffer_manager().get_color_buffer().save(path)
 
     @staticmethod
     def rgb_array(board, board_size, agents, is_partially_observable):
@@ -137,11 +176,8 @@ class PixelViewer(object):
 
         return frames
 
-    def set_step(self, step):
-        return step
 
-
-class PommeViewer(object):
+class PommeViewer(Viewer):
     def __init__(self, 
                 display=None, 
                 board_size=13, 
@@ -149,6 +185,7 @@ class PommeViewer(object):
                 partially_observable=False,
                 game_type=None
     ):
+        super().__init__()
         self.display = rendering.get_display(display)
         board_height = constants.TILE_SIZE * board_size
         height =  math.ceil(board_height + (constants.BORDER_SIZE * 2) + (constants.MARGIN_SIZE * 3))
@@ -160,37 +197,19 @@ class PommeViewer(object):
         self.window.set_caption('Pommerman')
         self.isopen = True
         self._board_size = board_size
-        self._board_state = None
         self._resource_manager = ResourceManager()
         self._tile_size = constants.TILE_SIZE
         self._agent_tile_size =  (board_height / 4) / board_size
         self._agent_count = len(agents)
         self._agents = agents
-        self._step = 0
         self._game_type = game_type
         self._is_partially_observable = partially_observable
-        self._agent_view_size = 4
-        self._batch = None
-
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        
 
         @self.window.event
         def close(self):
             self.window.close()
             self.isopen = False
-
-    def set_agent_view_size(self, view_size):
-        self._agent_view_size = view_size
-
-    def set_agents(self, agents):
-        self._agents = agents
-    
-    def set_board(self, state):
-        self._board_state = state
-
-    def set_step(self, step):
-        self._step = step
 
     def render(self):
         self.window.switch_to()
@@ -314,16 +333,6 @@ class PommeViewer(object):
                 sprites.append(pyglet.sprite.Sprite(dead, x, y, batch=self._batch, group=layer_top))
 
         return sprites
-
-    def save(self, path):
-        pyglet.image.get_buffer_manager().get_color_buffer().save(path)
-
-    def close(self):
-        self.window.close()
-        self.isopen = False
-
-    def window_closed_by_user(self):
-        self.isopen = False
 
     def board_top(self, y_offset=0):
         return constants.BORDER_SIZE + (self._board_size * self._tile_size) + y_offset

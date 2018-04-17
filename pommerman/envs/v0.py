@@ -40,6 +40,7 @@ class Pomme(gym.Env):
         self._agents = None
         self._game_type = game_type
         self._board_size = board_size
+        self._mode = None
         self._agent_view_size = agent_view_size
         self._num_rigid = num_rigid
         self._num_wood = num_wood
@@ -61,6 +62,9 @@ class Pomme(gym.Env):
 
     def _set_action_space(self):
         self.action_space = spaces.Discrete(6)
+
+    def set_render_mode(self, mode):
+        self._mode = mode
 
     def _set_observation_space(self):
         """The Observation Space for each agent.
@@ -88,6 +92,9 @@ class Pomme(gym.Env):
 
     def set_training_agent(self, agent_id):
         self.training_agent = agent_id
+
+    def set_render(self, mode):
+        self._mode = mode
 
     def set_init_game_state(self, game_state_file):
         """Set the initial game state.
@@ -171,10 +178,17 @@ class Pomme(gym.Env):
         self._step_count += 1
         return obs, reward, done, info
 
-    def render(self, mode='human', close=False, record_pngs_dir=None, record_json_dir=None):
+    def render(self, mode=None, close=False, record_pngs_dir=None, record_json_dir=None):
         if close:
             self.close()
             return
+        
+        mode = mode
+
+        if self._mode is not None:
+            mode = self._mode
+        elif mode is None:
+            mode = 'human'
 
         if mode == 'rgb_array':
             rgb_array = graphics.PixelViewer.rgb_array(self._board, self._board_size, self._agents, self._is_partially_observable)
@@ -210,8 +224,7 @@ class Pomme(gym.Env):
             self._viewer.render()
 
         if record_pngs_dir:
-            path = os.path.join(record_pngs_dir, '%d.png' % self._step_count)
-            self._viewer.save(path)
+            self._viewer.save(record_pngs_dir)
         if record_json_dir:
             info = self.get_json_info()
             with open(os.path.join(record_json_dir, '%d.json' % self._step_count), 'w') as f:

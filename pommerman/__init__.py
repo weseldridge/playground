@@ -41,5 +41,5 @@ def make(config_id, agent_list, game_state_file=None, render_mode='human'):
 
     env.set_agents(agent_list)
     env.set_init_game_state(game_state_file)
-    env.render(mode=render_mode)
+    env.set_render_mode(render_mode)
     return env
