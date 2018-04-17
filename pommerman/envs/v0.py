@@ -40,7 +40,6 @@ class Pomme(gym.Env):
         self._agents = None
         self._game_type = game_type
         self._board_size = board_size
-        self._mode = None
         self._agent_view_size = agent_view_size
         self._num_rigid = num_rigid
         self._num_wood = num_wood
@@ -51,6 +50,10 @@ class Pomme(gym.Env):
 
         self.training_agent = None
         self.model = forward_model.ForwardModel()
+
+        # This can be changed through set_render_mode
+        # or from the cli tool using '--render_mode=MODE_TYPE'
+        self._mode = 'human'
 
         # Observation and Action Spaces. These are both geared towards a single
         # agent even though the environment expects actions and returns
