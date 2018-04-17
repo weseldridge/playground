@@ -76,7 +76,7 @@ class Viewer(object):
 
     def save(self, path):
         now = datetime.now()
-        filename = now.strftime('%m_%d_%y-%-H_%M_%S_') + str(self._step) + '.png'
+        filename = now.strftime('%m-%d-%y_%-H-%M-%S_') + str(self._step) + '.png'
         path = os.path.join(path, filename)
         pyglet.image.get_buffer_manager().get_color_buffer().save(path)
 
