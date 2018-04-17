@@ -171,39 +171,6 @@ class Pomme(gym.Env):
         self._step_count += 1
         return obs, reward, done, info
 
-    def _render_frames(self):
-        agent_view_size = constants.AGENT_VIEW_SIZE
-        frames = []
-
-        all_frame = np.zeros((self._board_size, self._board_size, 3))
-        num_items = len(constants.Item)
-        for row in range(self._board_size):
-            for col in range(self._board_size):
-                value = self._board[row][col]
-                if utility.position_is_agent(self._board, (row, col)):
-                    num_agent = value - num_items
-                    if self._agents[num_agent].is_alive:
-                        all_frame[row][col] = constants.AGENT_COLORS[num_agent]
-                else:
-                    all_frame[row][col] = constants.ITEM_COLORS[value]
-
-        all_frame = np.array(all_frame)
-        frames.append(all_frame)
-
-        for agent in self._agents:
-            row, col = agent.position
-            my_frame = all_frame.copy()
-            for r in range(self._board_size):
-                for c in range(self._board_size):
-                    if self._is_partially_observable and not all([
-                            row >= r - agent_view_size, row < r + agent_view_size,
-                            col >= c - agent_view_size, col < c + agent_view_size
-                    ]):
-                        my_frame[r, c] = constants.ITEM_COLORS[constants.Item.Fog.value]
-            frames.append(my_frame)
-
-        return frames
-
     def render(self, mode='human', close=False, record_pngs_dir=None, record_json_dir=None):
         if close:
             self.close()
