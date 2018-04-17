@@ -43,14 +43,12 @@ class PixelViewer(object):
         ):
         
         self.display = rendering.get_display(display)
-
         self._board_size = board_size
         self._board_state = None
         self._agent_count = len(agents)
         self._agents = agents
         self._is_partially_observable = partially_observable
         self.window = None
-        
 
     def set_board(self, state):
         self._board_state = state
@@ -59,7 +57,6 @@ class PixelViewer(object):
         self._agents = agents
 
     def render(self):
-        
         frames = self.build_frame()
 
         if self.window is None:
@@ -199,7 +196,6 @@ class PommeViewer(object):
     def render(self):
         self.window.switch_to()
         self.window.dispatch_events()
-        
         self._batch = pyglet.graphics.Batch()
 
         background = self.render_background()

@@ -40,5 +40,5 @@ Discussions, correspondence, and announcements often happen in Discord. You can 
 
 ## Formating
 
-**Spacing** - Inbetween methods in classes use one line space. Functions, Classes, and groups of variables outside of a Class use two line spaces.
+**Spacing** - In between methods in classes use one line space. Functions, Classes, and groups of variables outside of a Class use two line spaces.
 
