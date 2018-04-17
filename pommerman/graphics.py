@@ -41,7 +41,6 @@ class PixelViewer(object):
                 partially_observable=False,
                 game_type=None
         ):
-        
         self.display = rendering.get_display(display)
         self._board_size = board_size
         self._board_state = None
