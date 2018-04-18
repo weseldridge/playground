@@ -43,7 +43,7 @@ def run(args, num_times=1, seed=None):
 
     if record_pngs_dir and not os.path.isdir(record_pngs_dir):
         os.makedirs(record_pngs_dir)
-    if record_json_dir and os.path.isdir(record_json_dir):
+    if record_json_dir and not os.path.isdir(record_json_dir):
         os.makedirs(record_json_dir)
 
     def _run(seed, record_pngs_dir=None, record_json_dir=None):
