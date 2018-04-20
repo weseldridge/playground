@@ -105,7 +105,7 @@ class WrappedEnv(OpenAIGym):
 # Instantiate and run the environment for 5 episodes.
 wrapped_env = WrappedEnv(env, True)
 runner = Runner(agent=agent, environment=wrapped_env)
-runner.run(episodes=5, max_episode_timesteps=2000)
+runner.run(episodes=5, max_episode_timesteps=20000)
 print("Stats: ", runner.episode_rewards, runner.episode_timesteps, runner.episode_times)
 
 try:
