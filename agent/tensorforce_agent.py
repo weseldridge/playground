@@ -19,6 +19,10 @@ from pommerman import agents
 from pommerman import helpers
 from pommerman import make
 
+record_json_dir="/Users/weseldridge/Developer/Pommerman/game_state"
+record_pngs_dir="/Users/weseldridge/Developer/Pommerman/train_images"
+game_state_file=None#"/Users/weseldridge/Developer/Pommerman/playground/agent/start.json"
+
 def clean_up_agents(agents):
     """Stops all agents"""
     return [agent.shutdown() for agent in agents]
@@ -51,12 +55,17 @@ class DQNTensorForceAgent(BaseAgent):
                 dict(type='dense', size=64),
                 dict(type='dense', size=64)
             ],
+            saver=dict(
+                directory="/Users/weseldridge/Developer/Pommerman/models/dqn2",
+                seconds=300
+            ),
+            discount=0.7,
             batching_capacity=1000,
             actions_exploration=dict(
                 type="epsilon_decay",
                 initial_epsilon=1.0,
                 final_epsilon=0.1,
-                timesteps=100000
+                timesteps=500
             )
         )
 
@@ -67,7 +76,7 @@ class WrappedEnv(OpenAIGym):
 
     def execute(self, actions):
         if self.visualize:
-            self.gym.render()
+            self.gym.render(record_json_dir=record_json_dir, record_pngs_dir=record_pngs_dir)
 
         obs = self.gym.get_observations()
         all_actions = self.gym.act(obs)
@@ -92,7 +101,10 @@ agents = [
     DQNTensorForceAgent()
 ]
 
-env = make(config, agents)
+
+
+
+env = make(config, agents, game_state_file=game_state_file)
 training_agent = None
 
 for agent in agents:
@@ -106,9 +118,13 @@ agent = training_agent.initialize(env)
 
 atexit.register(functools.partial(clean_up_agents, agents))
 
+def episode_finished(r):
+       print("Finished episode {ep} after {ts} timesteps (reward: {reward})".format(ep=r.episode, ts=r.episode_timestep, reward=r.episode_rewards[-1]))
+       return True
 
 wrapped_env = WrappedEnv(env, visualize=True)
-runner = Runner(agent=agent, environment=wrapped_env)
-runner.run(episodes=10, max_episode_timesteps=2000)
+runner = Runner(agent=agent, 
+                environment=wrapped_env)
+runner.run(episodes=1, max_episode_timesteps=2000, episode_finished=episode_finished)
 
 runner.close()
