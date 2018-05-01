@@ -53,10 +53,12 @@ class DQNTensorForceAgent(BaseAgent):
             actions=actions,
             network=[
                 dict(type='dense', size=64),
-                dict(type='dense', size=64)
+                dict(type='dense', size=64),
+                dict(type='dense', size=64),
+                dict(type='dense', size=64),
             ],
             saver=dict(
-                directory="/Users/weseldridge/Developer/Pommerman/models/dqn2",
+                directory="/path/to/saved/Pommerman/models/dqn2",
                 seconds=300
             ),
             discount=0.7,
@@ -128,3 +130,5 @@ runner = Runner(agent=agent,
 runner.run(episodes=1, max_episode_timesteps=2000, episode_finished=episode_finished)
 
 runner.close()
+
+
