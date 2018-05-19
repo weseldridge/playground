@@ -38,7 +38,7 @@ To get a list of active options you can run `pom_battle --help`. Below is a list
 
 - `--record_json_dir` defines the directory to record the JSON representations of the game. The default is `None`. If the directory doesn't exist, it will be created.
 
-- `--render` allows you to turn of rendering of the game. The default is `True`.
+- `--render` allows you to turn of rendering of the game. The default is `False`.
 
 - `--render_mode` changes the render mode of the game. The default is `human`. Available options are `human`, `rgb_pixel`, and `rgb_array`.
 
@@ -60,5 +60,5 @@ Pommerman comes with a trainable agent out of the box. The agent uses a Proximal
 An example with all three simple agents running ffa:
 
 ```bash
-pom_tf_battle --agents=tensorforce::ppo,test::agents.SimpleAgent,test::agents.SimpleAgent,test::agents.SimpleAgent --config=ffa_v0
+pom_tf_battle --agents=tensorforce::ppo,test::agents.SimpleAgent,test::agents.SimpleAgent,test::agents.SimpleAgent --config=PommeFFA-v0
 ```

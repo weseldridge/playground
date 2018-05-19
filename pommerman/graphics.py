@@ -1,38 +1,40 @@
-from scipy.misc import imresize as resize
+"""Module to handle all of the graphics components.
+
+'rendering' converts a display specification (such as :0) into an actual
+Display object. Pyglet only supports multiple Displays on Linux.
+"""
 from datetime import datetime
-from gym.utils import reraise
-from random import randint
-from time import strftime
-import numpy as np
 import math
 import os
+from random import randint
+from time import strftime
 
-"""
-'rendering' converts a display specification (such as :0) 
-into an actual Display object.
-Pyglet only supports multiple Displays on Linux.
-"""
-from gym.envs.classic_control import rendering
+from gym.utils import reraise
+import numpy as np
+from scipy.misc import imresize as resize
 
 try:
     import pyglet
 except ImportError as e:
     reraise(suffix="HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.")
-
+    
 try:
     from pyglet.gl import *
+    layer_background = pyglet.graphics.OrderedGroup(0)
+    layer_foreground = pyglet.graphics.OrderedGroup(1)
+    layer_top = pyglet.graphics.OrderedGroup(2)
+except pyglet.canvas.xlib.NoSuchDisplayException as e:
+    print("Import error! You will not be able to render --> %s" % e)
 except ImportError as e:
     reraise(prefix="Error occured while running `from pyglet.gl import *`", suffix="HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'. If you're running on a server, you may need a virtual frame buffer; something like this should work: 'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'")
 
-from . import utility
 from . import constants
+from . import utility
+
 
 __location__ = os.path.dirname(os.path.realpath(__file__))
 _resource_path = os.path.join(__location__, constants.RESOURCE_DIR)
 
-layer_background = pyglet.graphics.OrderedGroup(0)
-layer_foreground = pyglet.graphics.OrderedGroup(1)
-layer_top = pyglet.graphics.OrderedGroup(2)
 
 class Viewer(object):
     def __init__(self):
@@ -90,6 +92,7 @@ class PixelViewer(Viewer):
                 game_type=None
         ):
         super().__init__()
+        from gym.envs.classic_control import rendering
         self.display = rendering.get_display(display)
         self._board_size = board_size
         self._agent_count = len(agents)
@@ -141,7 +144,6 @@ class PixelViewer(Viewer):
 
         return img
 
-
     @staticmethod
     def rgb_array(board, board_size, agents, is_partially_observable):
         agent_view_size = constants.AGENT_VIEW_SIZE
@@ -186,6 +188,7 @@ class PommeViewer(Viewer):
                 game_type=None
     ):
         super().__init__()
+        from gym.envs.classic_control import rendering
         self.display = rendering.get_display(display)
         board_height = constants.TILE_SIZE * board_size
         height =  math.ceil(board_height + (constants.BORDER_SIZE * 2) + (constants.MARGIN_SIZE * 3))
@@ -230,25 +233,27 @@ class PommeViewer(Viewer):
         size = self._tile_size
         x_offset = constants.BORDER_SIZE
         y_offset = constants.BORDER_SIZE
-        return self.render_board(board, x_offset, y_offset, size)
+        top = self.board_top(-constants.BORDER_SIZE - 8)
+        return self.render_board(board, x_offset, y_offset, size, top)
 
     def render_agents_board(self):
         x_offset = self._board_size * self._tile_size + constants.BORDER_SIZE + constants.MARGIN_SIZE
         size = self._agent_tile_size
         agents = []
+        top = self._height - constants.BORDER_SIZE + constants.MARGIN_SIZE
         for agent in self._agents:
             y_offset = agent.agent_id * size * self._board_size + ( agent.agent_id * constants.MARGIN_SIZE ) + constants.BORDER_SIZE
             agent_board = self.agent_view(agent)
-            sprite = self.render_board(agent_board, x_offset, y_offset, size)
+            sprite = self.render_board(agent_board, x_offset, y_offset, size, top)
             agents.append(sprite)
         return agents
 
-    def render_board(self, board, x_offset, y_offset, size):
+    def render_board(self, board, x_offset, y_offset, size, top=0):
         sprites = []
         for r in range(self._board_size):
             for c in range(self._board_size):
                 x = c * size + x_offset
-                y = r * size + y_offset
+                y = top - y_offset - r * size
                 tile_state = board[r][c]
                 tile = self._resource_manager.tile_from_state_value(tile_state)
                 tile.width = size
@@ -265,7 +270,7 @@ class PommeViewer(Viewer):
         state = self._board_state
         fog_value = self._resource_manager.fog_value()
         row, col = agent.position
-
+         
         for r in range(self._board_size):
             for c in range(self._board_size):
                 if self._is_partially_observable and not all([

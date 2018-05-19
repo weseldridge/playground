@@ -4,13 +4,13 @@ Call this with a config, a game, and a list of agents. The script will start sep
 and then report back the result.
 
 An example with all four test agents running ffa:
-python run_battle.py --agents=test::agents.SimpleAgent,test::agents.SimpleAgent,test::agents.SimpleAgent,test::agents.SimpleAgent --config=ffa_v0
+python run_battle.py --agents=test::agents.SimpleAgent,test::agents.SimpleAgent,test::agents.SimpleAgent,test::agents.SimpleAgent --config=PommeFFA-v0
 
 An example with one player, two random agents, and one test agent:
-python run_battle.py --agents=player::arrows,test::agents.SimpleAgent,random::null,random::null --config=ffa_v0
+python run_battle.py --agents=player::arrows,test::agents.SimpleAgent,random::null,random::null --config=PommeFFA-v0
 
 An example with a docker agent:
-python run_battle.py --agents=player::arrows,docker::pommerman/test-agent,random::null,random::null --config=ffa_v0
+python run_battle.py --agents=player::arrows,docker::pommerman/test-agent,random::null,random::null --config=PommeFFA-v0
 """
 import atexit
 import os
@@ -66,11 +66,11 @@ def run(args, num_times=1, seed=None):
         
         print("Final Result: ", info)
         if args.render:
-            time.sleep(5)
             env.render(record_pngs_dir=args.record_pngs_dir,
                        record_json_dir=args.record_json_dir, 
-                       mode=args.render_mode,
-                       close=True)
+                       mode=args.render_mode)
+            time.sleep(5)
+            env.render(close=True)
         return info
 
     infos = []
@@ -101,9 +101,6 @@ def main():
     docker_agent = 'docker::pommerman/simple-agent'
     
     parser = argparse.ArgumentParser(description='Playground Flags.')
-    parser.add_argument('--game',
-                        default='pommerman',
-                        help='Game to choose.')
     parser.add_argument('--config',
                         default='PommeFFA-v0',
                         help='Configuration to execute. See env_ids in '
@@ -129,9 +126,10 @@ def main():
                         default=None,
                         help='Directory to record the JSON representations of '
                         "the game. Doesn't record if None.")
-    parser.add_argument('--render',
-                        default=True,
-                        help="Whether to render or not. Defaults to True.")
+    parser.add_argument("--render",
+                        default=False,
+                        action='store_true',
+                        help="Whether to render or not. Defaults to False.")
     parser.add_argument('--render_mode',
                         default='human',
                         help="What mode to render. Options are human, rgb_pixel, and rgb_array")
